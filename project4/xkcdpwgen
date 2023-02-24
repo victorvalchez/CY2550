@@ -2,11 +2,13 @@
 
 import sys
 import random
+import re
+
+file = open("words.txt")
+words = file.readlines()
 
 
 def main(h, w, c, n, s):
-    file = open("words.txt")
-    words = file.readlines()
     if h == 1:
         return ("""usage: xkcdpwgen [-h] [-w WORDS] [-c CAPS] [-n NUMBERS] [-s SYMBOLS]
                 
@@ -27,19 +29,20 @@ optional arguments:
     password_elems = []
     if w is not None:
         for i in range(w):
-                word = words[random.randint(0, len(words))]
-                password_elems.append(word[0:len(word)-1])
-    if c is not None and w >= c:
-        for i in range(c):
-            j = random.randint(0, len(password_elems)-1)
-            password_elems[j] = password_elems[j].title()
-    else:
-        raise Exception("Not enough words to capitalize")
+            word = words[random.randint(0, len(words))]
+            password_elems.append(word[0:len(word) - 1])
+    if c is not None:
+        if w >= c:
+            for i in range(c):
+                j = random.randint(0, len(password_elems) - 1)
+                password_elems[j] = password_elems[j].title()
+        else:
+            raise "Not enough words to capitalize"
 
     symbols = "(~!@#$%^&*.:;)"
     if c is not None:
         for i in range(s):
-            j = random.randint(0, len(symbols)-1)
+            j = random.randint(0, len(symbols) - 1)
             password_elems.append(symbols[j])
 
     if n is not None:
@@ -50,19 +53,39 @@ optional arguments:
     password = ""
     for i in range(len(password_elems)):
         print(password_elems)
-        j = random.randint(0, len(password_elems)-1)
+        j = random.randint(0, len(password_elems) - 1)
         char = password_elems.pop(j)
         password += char
 
     return password
 
 
+def check_arguments(args):
+    if len(args) == 0:
+        print('No arguments provided.')
+        return False
+
+    for arg in args:
+        if arg not in ['-h', '-w', '-c', '-s', '-n'] and not arg.isdigit():
+            print(f'Invalid argument: {arg}')
+            return False
+
+        if arg.isdigit() and (int(arg) < 0 or int(arg) > 50000):
+            print(f'Number out of range: {arg}')
+            return False
+
+    return True
+
+
 if __name__ == "__main__":
     h, w, c, n, s = None, None, None, None, None
     if len(sys.argv) == 1:
         print(main(0, 4, c, n, s))
-    else:
-        for i in range(len(sys.argv)):
+    args = sys.argv[1:]
+    for i in range(len(args)):
+        if args[i] not in ['-h', '-w', '-c', '-s', '-n'] and not args[i].isdigit():
+            raise Exception("Incorrect argument, type -h for help.")
+        else:
             if sys.argv[i] == "-h":
                 h = 1
             elif sys.argv[i] == "-w":
@@ -73,6 +96,4 @@ if __name__ == "__main__":
                 n = int(sys.argv[i + 1])
             elif sys.argv[i] == "-s":
                 s = int(sys.argv[i + 1])
-            else:
-                raise Exception("Argument not supported, type -h for help")
         print(main(h, w, c, n, s))
