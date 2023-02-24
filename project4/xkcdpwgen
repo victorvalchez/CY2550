@@ -5,27 +5,42 @@ import string
 import argparse
 
 # Define the word list
-with open('words.txt', 'r') as f:
+with open('words.txt') as f:
     wordlist = f.readlines()
 
 # Define the argument parser
 parser = argparse.ArgumentParser(description='Generate a secure, memorable password using the XKCD method')
 parser.add_argument('-w', '--words', type=int, default=4, help='include WORDS words in the password (default=4)')
-parser.add_argument('-c', '--caps', type=int, default=0, help='capitalize the first letter of CAPS random words (default=0)')
-parser.add_argument('-n', '--numbers', type=int, default=0, help='insert NUMBERS random numbers in the password (default=0)')
-parser.add_argument('-s', '--symbols', type=int, default=0, help='insert SYMBOLS random symbols in the password (default=0)')
+parser.add_argument('-c', '--caps', type=int, default=0,
+                    help='capitalize the first letter of CAPS random words (default=0)')
+parser.add_argument('-n', '--numbers', type=int, default=0,
+                    help='insert NUMBERS random numbers in the password (default=0)')
+parser.add_argument('-s', '--symbols', type=int, default=0,
+                    help='insert SYMBOLS random symbols in the password (default=0)')
 args = parser.parse_args()
 
-# Generate the password
-words = [random.choice(wordlist).strip() for _ in range(args.words)]
-if args.caps > 0:
-    caps_indices = random.sample(range(args.words), args.caps)
-    words = [w.capitalize() if i in caps_indices else w for i, w in enumerate(words)]
-password = ''.join(words)
-if args.numbers > 0:
-    password += ''.join(random.choices(string.digits, k=args.numbers))
-if args.symbols > 0:
-    password += ''.join(random.choices(string.punctuation, k=args.symbols))
+words = []
+for i in range(args.words):
+    word = random.choice(wordlist)
+    words.append(word[:-1])
 
+if args.caps <= args.words:
+    for i in range(args.caps):
+        j = random.randint(0, len(words)-1)
+        words[j] = words[j].capitalize()
+else:
+    raise Exception("There are not enough words to capitalize")
+
+if args.numbers > 0:
+    for i in range(args.numbers):
+        j = random.randint(0, len(words))
+        words.insert(j, str(random.randint(0, 9)))
+
+if args.symbols > 0:
+    for i in range(args.symbols):
+        j = random.randint(0, len(words))
+        words.insert(j, str(random.choices(string.punctuation, k=1))[2])
+
+password = ''.join(words)
 # Print the password
 print(password)
