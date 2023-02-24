@@ -1,85 +1,31 @@
 #!/usr/bin/env python3
 
-import sys
 import random
+import string
+import argparse
 
-file = open("words.txt")
-words = file.readlines()
+# Define the word list
+with open('words.txt', 'r') as f:
+    wordlist = f.readlines()
 
+# Define the argument parser
+parser = argparse.ArgumentParser(description='Generate a secure, memorable password using the XKCD method')
+parser.add_argument('-w', '--words', type=int, default=4, help='include WORDS words in the password (default=4)')
+parser.add_argument('-c', '--caps', type=int, default=0, help='capitalize the first letter of CAPS random words (default=0)')
+parser.add_argument('-n', '--numbers', type=int, default=0, help='insert NUMBERS random numbers in the password (default=0)')
+parser.add_argument('-s', '--symbols', type=int, default=0, help='insert SYMBOLS random symbols in the password (default=0)')
+args = parser.parse_args()
 
-def main(h, w, c, n, s):
-    if h == 1:
-        return ("""usage: xkcdpwgen [-h] [-w WORDS] [-c CAPS] [-n NUMBERS] [-s SYMBOLS]
-                
-Generate a secure, memorable password using the XKCD method
-                
-optional arguments:
-    -h, --help            show this help message and exit
-    -w WORDS, --words WORDS
-                          include WORDS words in the password (default=4)
-    -c CAPS, --caps CAPS  capitalize the first letter of CAPS random words
-                          (default=0)
-    -n NUMBERS, --numbers NUMBERS
-                          insert NUMBERS random numbers in the password
-                          (default=0)
-    -s SYMBOLS, --symbols SYMBOLS
-                          insert SYMBOLS random symbols in the password
-                          (default=0)""")
-    password_words = []
-    password_elems = []
-    if w is not None:
-        for i in range(w):
-            word = words[random.randint(0, len(words))]
-            password_words.append(word[0:len(word) - 1])
+# Generate the password
+words = [random.choice(wordlist).strip() for _ in range(args.words)]
+if args.caps > 0:
+    caps_indices = random.sample(range(args.words), args.caps)
+    words = [w.capitalize() if i in caps_indices else w for i, w in enumerate(words)]
+password = ''.join(words)
+if args.numbers > 0:
+    password += ''.join(random.choices(string.digits, k=args.numbers))
+if args.symbols > 0:
+    password += ''.join(random.choices(string.punctuation, k=args.symbols))
 
-    if c is not None and w is not None:
-        if w >= c:
-            for i in range(c):
-                j = random.randint(0, len(password_words) - 1)
-                password_words[j] = password_words[j].title()
-        else:
-            raise "Not enough words to capitalize"
-
-    symbols = "(~!@#$%^&*.:;)"
-    if s is not None and w is not None:
-        for i in range(s):
-            j = random.randint(0, len(symbols) - 1)
-            password_elems.append(symbols[j])
-
-    if n is not None and w is not None:
-        for i in range(n):
-            j = random.randint(0, 9)
-            password_elems.append(str(j))
-
-    password = ""
-    for i in range(len(password_elems)):
-        j = random.randint(0, len(password_elems) - 1)
-        char = password_elems.pop(j)
-        k = random.randint(0, len(password_words) - 1)
-        password_words.insert(k, char)
-    for i in password_words:
-    	password += i
-
-    return password
-
-
-if __name__ == "__main__":
-    h, w, c, n, s = None, None, None, None, None
-    if len(sys.argv) == 1:
-        print(main(0, 4, c, n, s))
-    args = sys.argv[1:]
-    for i in range(len(args)):
-        if args[i] not in ['-h', '-w', '-c', '-s', '-n'] and not args[i].isdigit():
-            raise Exception("Incorrect argument, type -h for help.")
-        else:
-            if sys.argv[i] == "-h":
-                h = 1
-            elif sys.argv[i] == "-w":
-                w = int(sys.argv[i + 1])
-            elif sys.argv[i] == "-c":
-                c = int(sys.argv[i + 1])
-            elif sys.argv[i] == "-n":
-                n = int(sys.argv[i + 1])
-            elif sys.argv[i] == "-s":
-                s = int(sys.argv[i + 1])
-        print(main(h, w, c, n, s))
+# Print the password
+print(password)
