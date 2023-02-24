@@ -31,7 +31,7 @@ optional arguments:
         for i in range(w):
             word = words[random.randint(0, len(words))]
             password_elems.append(word[0:len(word) - 1])
-    if c is not None:
+    if c is not None and w is not None:
         if w >= c:
             for i in range(c):
                 j = random.randint(0, len(password_elems) - 1)
@@ -40,12 +40,12 @@ optional arguments:
             raise "Not enough words to capitalize"
 
     symbols = "(~!@#$%^&*.:;)"
-    if c is not None:
+    if s is not None and w is not None:
         for i in range(s):
             j = random.randint(0, len(symbols) - 1)
             password_elems.append(symbols[j])
 
-    if n is not None:
+    if n is not None and w is not None:
         for i in range(n):
             j = random.randint(0, 9)
             password_elems.append(str(j))
