@@ -2,7 +2,6 @@
 
 import sys
 import random
-import re
 
 file = open("words.txt")
 words = file.readlines()
@@ -26,16 +25,18 @@ optional arguments:
     -s SYMBOLS, --symbols SYMBOLS
                           insert SYMBOLS random symbols in the password
                           (default=0)""")
+    password_words = []
     password_elems = []
     if w is not None:
         for i in range(w):
             word = words[random.randint(0, len(words))]
-            password_elems.append(word[0:len(word) - 1])
+            password_words.append(word[0:len(word) - 1])
+
     if c is not None and w is not None:
         if w >= c:
             for i in range(c):
-                j = random.randint(0, len(password_elems) - 1)
-                password_elems[j] = password_elems[j].title()
+                j = random.randint(0, len(password_words) - 1)
+                password_words[j] = password_words[j].title()
         else:
             raise "Not enough words to capitalize"
 
@@ -52,29 +53,14 @@ optional arguments:
 
     password = ""
     for i in range(len(password_elems)):
-        print(password_elems)
         j = random.randint(0, len(password_elems) - 1)
         char = password_elems.pop(j)
-        password += char
+        k = random.randint(0, len(password_words) - 1)
+        password_words.insert(k, char)
+    for i in password_words:
+    	password += i
 
     return password
-
-
-def check_arguments(args):
-    if len(args) == 0:
-        print('No arguments provided.')
-        return False
-
-    for arg in args:
-        if arg not in ['-h', '-w', '-c', '-s', '-n'] and not arg.isdigit():
-            print(f'Invalid argument: {arg}')
-            return False
-
-        if arg.isdigit() and (int(arg) < 0 or int(arg) > 50000):
-            print(f'Number out of range: {arg}')
-            return False
-
-    return True
 
 
 if __name__ == "__main__":
