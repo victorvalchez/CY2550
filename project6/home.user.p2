@@ -1,0 +1,22 @@
+# Last Modified: Tue Mar 28 17:07:06 2023
+abi <abi/3.0>,
+
+include <tunables/global>
+
+/home/victor/CY2550/project6/p2 flags=(audit) {
+  include <abstractions/base>
+
+  /home/victor/CY2550/project6/p2 mr,
+  /tmp/* rwmkl,
+  owner /home/*/.project2/config w,
+  /var/log/syslog r,
+  /proc/version r,
+  /proc/buddyinfo r,
+  /etc/fstab r,
+  /etc/passwd r,
+  /etc/hosts r,
+  /run/systemd/resolve/stub-resolv.conf r,
+  /etc/crontab r,
+  /home/victor/CY2550/project6/template r,
+  network tcp,
+}
